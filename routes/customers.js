@@ -1,40 +1,9 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const debug = require("debug")("genres:mongodb");
-const Joi = require("joi"); // class
+const { Customer, validate } = require("../models/customer");
 // ====================================================
 const router = express.Router();
 
-const Customer = mongoose.model(
-  "Customer",
-  new mongoose.Schema({
-    isGold: {
-      type: Boolean,
-      default: false,
-    },
-    name: {
-      type: String,
-      required: true,
-      minlength: 3,
-      maxlength: 50,
-    },
-    phone: {
-      type: String,
-      length: 11,
-      required: true
-    }
-  })
-);
-
-const validateCustomers = (customer) => {
-  const schema = Joi.object({
-    name: Joi.string().min(3).max(50).required(),
-    isGold: Joi.boolean(),
-    phone: Joi.String().length(11),
-  });
-  return schema.validate(customer);
-};
-// -------------------------------------------------------
 router.get("/", async (req, res) => {
   const customers = await Customer.find().sort("name");
   res.send(customers);
@@ -52,7 +21,7 @@ router.get("/:id", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  const { error } = validateCustomers(req.body);
+  const { error } = validate(req.body);
   if (error) return res.status(400).send(error.message);
 
   let customer = new Customer({
@@ -60,8 +29,9 @@ router.post("/", async (req, res) => {
     isGold: req.body.isGold,
     phone: req.body.phone,
   });
+
   try {
-    customer = await Customer.save();
+    customer = await customer.save();
     res.send(customer);
   } catch (err) {
     debug(err.message);
@@ -70,19 +40,22 @@ router.post("/", async (req, res) => {
 });
 
 router.put("/:id", async (req, res) => {
-  const { error } = validateCustomers(req.body);
+  const { error } = validate(req.body);
   if (error) return res.status(400).send(error.message);
 
   try {
-    const customer = await Customer.findByIdAndUpdate(
-      req.params.id,
-      { name: req.body.name },
-      { new: true }
-    );
+    let customer = await Customer.findById(req.params.id);
+    if (!customer) return res.status(404).send("Customer not found.");
+
+    customer.name = req.body.name || customer.name;
+    customer.isGold = req.body.isGold !== undefined ? req.body.isGold : customer.isGold;
+    customer.phone = req.body.phone || customer.phone;
+
+    customer = await customer.save();
     res.send(customer);
   } catch (err) {
     debug(err.message);
-    return res.status(404).send("customer not found.");
+    return res.status(500).send("Failed to update customer.");
   }
 });
 
