@@ -1,5 +1,5 @@
 const express = require("express");
-const debug = require("debug")("genres:mongodb");
+const debug = require("debug")("customers:mongodb");
 const { Customer, validate } = require("../models/customer");
 // ====================================================
 const router = express.Router();
@@ -24,14 +24,14 @@ router.post("/", async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.message);
 
-  let customer = new Customer({
+  const customer = new Customer({
     name: req.body.name,
     isGold: req.body.isGold,
     phone: req.body.phone,
   });
 
   try {
-    customer = await customer.save();
+    await customer.save();
     res.send(customer);
   } catch (err) {
     debug(err.message);
@@ -51,7 +51,7 @@ router.put("/:id", async (req, res) => {
     customer.isGold = req.body.isGold !== undefined ? req.body.isGold : customer.isGold;
     customer.phone = req.body.phone || customer.phone;
 
-    customer = await customer.save();
+    await customer.save();
     res.send(customer);
   } catch (err) {
     debug(err.message);
