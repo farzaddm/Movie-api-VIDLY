@@ -18,10 +18,10 @@ const Movie = mongoose.model(
     },
     numberInStock: {
       type: Number,
-      require: true,
       min: 0,
       max: 255,
     },
+      require: true,
     dailyRentalRate: {
       type: Number,
       require: true,

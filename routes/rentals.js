@@ -1,12 +1,10 @@
 const express = require("express");
 const debug = require("debug")("rentals:mongodb");
 const Fawn = require("fawn");
-const mongoose = require("mongoose");
 
 const { Rental, validate } = require("../models/rental");
 const { Customer } = require("../models/customer");
 const { Movie } = require("../models/movie");
-const { Mongoose } = require("mongoose");
 // ====================================================
 const router = express.Router();
 
