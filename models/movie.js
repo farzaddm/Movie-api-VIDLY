@@ -14,14 +14,14 @@ const Movie = mongoose.model(
     },
     genre: {
       type: genreSchema,
-      require: true,
+      required: true,
     },
     numberInStock: {
       type: Number,
       min: 0,
       max: 255,
+      required: true,
     },
-      require: true,
     dailyRentalRate: {
       type: Number,
       require: true,
