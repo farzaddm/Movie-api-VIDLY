@@ -6,8 +6,9 @@ const morgan = require("morgan");
 const debug = require("debug")("index:startup");
 const mongoose = require("mongoose");
 const Fawn = require("fawn");
-require('dotenv').config();
+require("dotenv").config();
 const config = require("config");
+require("express-async-errors");
 
 // routers
 const genres = require("./routes/genres");
@@ -16,11 +17,24 @@ const movies = require("./routes/movies");
 const rentals = require("./routes/rentals");
 const users = require("./routes/users");
 const auth = require("./routes/auth");
-const home = require("./routes/home");
+const error = require("./middleware/error");
+
+// logger model
+const logger = require("./models/logger");
 // =================================================================
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+process.on("uncaughtException", (ex) => {
+  logger.error(ex.message, { metadata: { stack: ex.stack, name: ex.name } });
+  process.exit(1);
+});
+
+process.on("unhandledRejection", (ex) => {
+  logger.error(ex.message, { metadata: { stack: ex.stack, name: ex.name } });
+  process.exit(1);
+});
 
 if (!config.get("jwtPrivateKey")) {
   console.error("FATAL ERROR: jwtPrivateKey is not defined.");
@@ -31,7 +45,7 @@ mongoose
   .connect("mongodb://localhost:27017/MoshTut", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useCreateIndex: true
+    useCreateIndex: true,
   })
   .then(() => {
     debug("Database connecting to mongoDB...");
@@ -54,7 +68,8 @@ app.use("/api/rentals", rentals);
 app.use("/api/users", users);
 app.use("/api/auth", auth);
 
-app.use("/", home);
+// Error Midlleware - should be at the end
+app.use(error);
 
 // check env.NODE_ENV to see if we are development or not
 if (app.get("env") === "development") {

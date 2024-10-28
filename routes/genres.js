@@ -1,13 +1,15 @@
 const express = require("express");
 const debug = require("debug")("genres:mongodb");
-const { Genre, validate }= require("../models/genre");
+const { Genre, validate } = require("../models/genre");
 const auth = require("../middleware/auth");
 const admin = require("../middleware/admin");
 // ===========================================================
 const router = express.Router();
 
 router.get("/", async (req, res) => {
-  const genres = await Genre.find().sort('name');
+  throw new Error("could not get genres.");
+
+  const genres = await Genre.find().sort("name");
   res.send(genres);
 });
 
@@ -42,7 +44,7 @@ router.put("/:id", async (req, res) => {
 
   try {
     let genre = await Genre.findByIdAndUpdate(
-      req.params.id ,
+      req.params.id,
       { name: req.body.name },
       { new: true }
     );
@@ -53,7 +55,8 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-router.delete("/:id", [auth, admin], async (req, res) => {// first check the auth and then go to admin
+router.delete("/:id", [auth, admin], async (req, res) => {
+  // first check the auth and then go to admin
   try {
     const genre = await Genre.deleteOne({ _id: req.params.id });
     if (!genre) return res.status(404).send("Genre not found.");

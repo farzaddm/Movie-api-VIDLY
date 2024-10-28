@@ -15,6 +15,7 @@
     "debug": "^4.3.7",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
+    "express-async-errors": "^3.1.1",
     "fawn": "^2.1.5",
     "helmet": "^8.0.0",
     "joi": "^17.13.3",
@@ -24,6 +25,8 @@
     "lodash": "^4.17.21",
     "mongoose": "^5.12.3",
     "morgan": "^1.10.0",
-    "pug": "^3.0.3"
+    "pug": "^3.0.3",
+    "winston": "^3.15.0",
+    "winston-mongodb": "^6.0.0"
   }
 }
