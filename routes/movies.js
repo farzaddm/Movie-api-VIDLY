@@ -49,9 +49,6 @@ router.post("/", auth, async (req, res) => {
 });
 
 router.put("/:id", async (req, res) => {
-  const { error } = validate(req.body);
-  if (error) return res.status(400).send(error.message);
-
   try {
     let movie = await Movie.findById(req.params.id);
     if (!movie) return res.status(404).send("Movie not found.");
