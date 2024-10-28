@@ -1,5 +1,4 @@
 const express = require("express");
-const debug = require("debug")("customers:mongodb");
 const { Customer, validate } = require("../models/customer");
 const auth = require("../middleware/auth");
 const admin = require("../middleware/admin");
@@ -12,14 +11,9 @@ router.get("/", async (req, res) => {
 });
 
 router.get("/:id", async (req, res) => {
-  try {
     const customer = await Customer.findById(req.params.id);
     if (!customer) return res.status(404).send("customer not found.");
     res.send(customer);
-  } catch (err) {
-    debug(err.message);
-    return res.status(500).send("Internal server error.");
-  }
 });
 
 router.post("/", auth, async (req, res) => {
@@ -32,41 +26,27 @@ router.post("/", auth, async (req, res) => {
     phone: req.body.phone,
   });
 
-  try {
-    await customer.save();
-    res.send(customer);
-  } catch (err) {
-    debug(err.message);
-    return res.status(500).send("Failed to save customer.");
-  }
+  await customer.save();
+  res.send(customer);
 });
 
 router.put("/:id", auth, async (req, res) => {
-  try {
-    let customer = await Customer.findById(req.params.id);
-    if (!customer) return res.status(404).send("Customer not found.");
+  let customer = await Customer.findById(req.params.id);
+  if (!customer) return res.status(404).send("Customer not found.");
 
-    customer.name = req.body.name || customer.name;
-    customer.isGold = req.body.isGold !== undefined ? req.body.isGold : customer.isGold;
-    customer.phone = req.body.phone || customer.phone;
+  customer.name = req.body.name || customer.name;
+  customer.isGold =
+    req.body.isGold !== undefined ? req.body.isGold : customer.isGold;
+  customer.phone = req.body.phone || customer.phone;
 
-    await customer.save();
-    res.send(customer);
-  } catch (err) {
-    debug(err.message);
-    return res.status(500).send("Failed to update customer.");
-  }
+  await customer.save();
+  res.send(customer);
 });
 
 router.delete("/:id", [admin, auth], async (req, res) => {
-  console.log(1);
-  try {
-    const customer = await Customer.deleteOne({ _id: req.params.id });
-    if (!customer) return res.status(404).send("customer not found.");
-    res.send(customer);
-  } catch (err) {
-    debug(err.message);
-  }
+  const customer = await Customer.deleteOne({ _id: req.params.id });
+  if (!customer) return res.status(404).send("customer not found.");
+  res.send(customer);
 });
 
 module.exports = router;

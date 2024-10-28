@@ -1,5 +1,4 @@
 const express = require("express");
-const debug = require("debug")("rentals:mongodb");
 const Fawn = require("fawn");
 
 const { Rental, validate } = require("../models/rental");
@@ -23,7 +22,8 @@ router.post("/", async (req, res) => {
   const movie = await Movie.findById(req.body.movieId);
   if (!movie) return res.status(400).send("Invalid movie.");
 
-  if (movie.numberInStock === 0) return res.status(400).send("Movie not in stock.");
+  if (movie.numberInStock === 0)
+    return res.status(400).send("Movie not in stock.");
 
   let rental = new Rental({
     customer: {
@@ -39,19 +39,18 @@ router.post("/", async (req, res) => {
   });
 
   // Use Fawn Task for two-phase commit (Transaction)
-  try {
-    new Fawn.Task()
-      .save("rentals", rental) // Save rental
-      .update("movies", { _id: movie._id }, { 
-        $inc: { numberInStock: -1 }
-      })
-      .run();  // Run the transaction
+  new Fawn.Task()
+    .save("rentals", rental) // Save rental
+    .update(
+      "movies",
+      { _id: movie._id },
+      {
+        $inc: { numberInStock: -1 },
+      }
+    )
+    .run(); // Run the transaction
 
-    res.send(rental); // Send response if successful
-  } catch (err) {
-    debug(err.message);
-    res.status(500).send("Transaction failed.");
-  }
+  res.send(rental); // Send response if successful
 });
 
 module.exports = router;

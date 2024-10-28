@@ -1,5 +1,4 @@
 const express = require("express");
-const debug = require("debug")("users:mongodb");
 const { User } = require("../models/user");
 const _ = require("lodash");
 const bcrypt = require("bcrypt");

@@ -1,5 +1,4 @@
 const express = require("express");
-const debug = require("debug")("users:mongodb");
 const { User, validate } = require("../models/user");
 const _ = require("lodash");
 const bcrypt = require("bcrypt");
@@ -8,7 +7,7 @@ const auth = require("../middleware/auth");
 const router = express.Router();
 
 router.get("/me", auth, async (req, res) => {
-  const user = await User.findById(req.user._id).select("-password"); // do not get password
+  const user = await User.findById(req.user.id).select("-password"); // do not get password
   res.send(user);
 });
 
@@ -24,17 +23,12 @@ router.post("/", async (req, res) => {
   const salt = await bcrypt.genSalt(10);
   user.password = await bcrypt.hash(user.password, salt);
 
-  try {
-    await user.save();
+  await user.save();
 
-    const token = user.generateAuthToken();
-    res
-      .header("x-auth-token", token)
-      .send(_.pick(user, ["_id", "name", "email"]));
-  } catch (err) {
-    debug(err.message);
-    return res.status(500).send("Failed to save user.");
-  }
+  const token = user.generateAuthToken();
+  res
+    .header("x-auth-token", token)
+    .send(_.pick(user, ["_id", "name", "email"]));
 });
 
 module.exports = router;
