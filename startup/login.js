@@ -1,5 +1,5 @@
 const winston = require("winston");
-require("winston-mongodb");
+// require("winston-mongodb");
 require("express-async-errors");
 
 module.exports = function () {
@@ -13,11 +13,11 @@ module.exports = function () {
   });
 
   winston.add(new winston.transports.File({ filename: "../logs/logfile.log" }));
-  winston.add(
-    new winston.transports.MongoDB({
-      db: "mongodb://localhost:27017/MoshTut",
-      collection: "logs",
-      level: "info",
-    })
-  );
+  // winston.add(
+  //   new winston.transports.MongoDB({
+  //     db: "mongodb://localhost:27017/MoshTut",
+  //     collection: "logs",
+  //     level: "info",
+  //   })
+  // );
 };

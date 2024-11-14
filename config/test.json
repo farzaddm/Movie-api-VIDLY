@@ -1,4 +1,5 @@
 {
-    "jwtPrivateKey": "JWT_PRIVATE_KEY",
+    "jwtPrivateKey": "1234",
     "db": "mongodb://localhost:27017/MoshTut"
+
 }
