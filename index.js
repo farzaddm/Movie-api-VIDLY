@@ -10,7 +10,8 @@ require("./startup/routes")(app);
 require("./startup/db")();
 require("./startup/config")();
 require("./startup/validation")();
+require('./startup/prod')(app);
 
-const server = app.listen(0, () => winston.info(`server is running on random port...`));
+const server = app.listen(3000, () => winston.info(`server is running on random port...`));
 
 module.exports = server;

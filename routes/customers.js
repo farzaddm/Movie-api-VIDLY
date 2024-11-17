@@ -2,6 +2,7 @@ const express = require("express");
 const { Customer, validate } = require("../models/customer");
 const auth = require("../middleware/auth");
 const admin = require("../middleware/admin");
+const validateObjectId = require("../middleware/validateObjectId");
 // ====================================================
 const router = express.Router();
 
@@ -10,10 +11,10 @@ router.get("/", async (req, res) => {
   res.send(customers);
 });
 
-router.get("/:id", async (req, res) => {
-    const customer = await Customer.findById(req.params.id);
-    if (!customer) return res.status(404).send("customer not found.");
-    res.send(customer);
+router.get("/:id", validateObjectId, async (req, res) => {
+  const customer = await Customer.findById(req.params.id);
+  if (!customer) return res.status(404).send("customer not found.");
+  res.send(customer);
 });
 
 router.post("/", auth, async (req, res) => {
@@ -31,15 +32,24 @@ router.post("/", auth, async (req, res) => {
 });
 
 router.put("/:id", auth, async (req, res) => {
-  let customer = await Customer.findById(req.params.id);
-  if (!customer) return res.status(404).send("Customer not found.");
+  const { error } = validate(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
 
-  customer.name = req.body.name || customer.name;
-  customer.isGold =
-    req.body.isGold !== undefined ? req.body.isGold : customer.isGold;
-  customer.phone = req.body.phone || customer.phone;
+  const customer = await Customer.findByIdAndUpdate(
+    req.params.id,
+    {
+      name: req.body.name,
+      isGold: req.body.isGold,
+      phone: req.body.phone,
+    },
+    { new: true }
+  );
 
-  await customer.save();
+  if (!customer)
+    return res
+      .status(404)
+      .send("The customer with the given ID was not found.");
+
   res.send(customer);
 });
 

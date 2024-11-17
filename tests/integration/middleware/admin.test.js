@@ -10,7 +10,7 @@ describe("admin middleware", () => {
 
   beforeEach(() => {
     server = require("../../../index");
-    auth.mockImplementation((req, res, neat) => {
+    auth.mockImplementation((req, res, next) => {
       req.user = { isAdmin: true };
       next();
     });
@@ -25,9 +25,11 @@ describe("admin middleware", () => {
 
   afterEach(async () => {
     if (server && server.listening) await server.close();
+    if (mongoose.connection.readyState === 1) 
+      await mongoose.connection.db.dropDatabase();
   });
 
-  const exec = async() => {
+  const exec = async () => {
     const id = mongoose.Types.ObjectId().toHexString();
     const res = await request(server)
       .delete("/api/movies/" + id)

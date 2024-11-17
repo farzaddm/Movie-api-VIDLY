@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const Joi = require("joi");
 
-
 const Rental = mongoose.model(
   "Rental",
   new mongoose.Schema({
@@ -23,7 +22,7 @@ const Rental = mongoose.model(
           required: true,
         },
       }),
-      require: true,
+      required: true,
     },
     movie: {
       type: new mongoose.Schema({
@@ -36,17 +35,17 @@ const Rental = mongoose.model(
         },
         dailyRentalRate: {
           type: Number,
-          require: true,
+          required: true,
           min: 0,
           max: 255,
         },
       }),
-      require: true,
+      required: true,
     },
     dateOut: {
       type: Date,
       required: true,
-      defualt: Date.now,
+      default: Date.now,
     },
     dateReturned: {
       type: Date,
@@ -58,7 +57,7 @@ const Rental = mongoose.model(
   })
 );
 
-const validateRentals = (rental) => {
+const validateRental = (rental) => {
   const schema = Joi.object({
     customerId: Joi.objectId().required(),
     movieId: Joi.objectId().required(),
@@ -67,4 +66,4 @@ const validateRentals = (rental) => {
 };
 
 exports.Rental = Rental;
-exports.validate = validateRentals;
+exports.validate = validateRental;
